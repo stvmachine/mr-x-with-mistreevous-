@@ -1,97 +1,101 @@
 import { useEffect, useState } from "react";
-import { Stage, Circle, Layer, Text } from "react-konva";
+import { Stage, Circle, Layer, Text, Rect } from "react-konva";
 import { State, BehaviourTree } from "mistreevous";
 import { PoliceStationMap, Room, rooms, roomsArray } from "./PoliceStationMap";
 
 const MrX = () => {
-  // Step 1: Set up state for Mr. X, player, and agent
   const [mrXPosition, setMrXPosition] = useState<Room>(rooms.mainHall);
   const [playerPosition, setPlayerPosition] = useState({
     ...rooms.officeRoom,
     x: rooms.officeRoom.x + 100,
     y: rooms.officeRoom.y,
   });
-  const [playerHealth, setPlayerHealth] = useState(30);
+  const [playerHealth, setPlayerHealth] = useState(100);
   const [gameOver, setGameOver] = useState(false);
 
-  // Step 2: Define behavior tree
+  // Behavior Tree Definition
   const definition = `root {
     selector {
         sequence {
             condition [IsSoundDetected]
             action [MoveToSound]
             action [AttackPlayer]
-			wait [2000]
-	        action [RoamAround]
+            wait [2000]
+            action [RoamAround]
         }
         action [RoamAround]
     }
   }`;
 
-  // Step 3: Create an agent
+  // AI Behaviors
   const agent = {
-    IsSoundDetected: () => Math.random() > 0.35,
+    IsSoundDetected: () => Math.random() > 0.25, // Increased detection probability
 
     MoveToSound: () => {
-      if (gameOver) {
-        return State.FAILED; // Stop movement if game is over
-      }
+      if (gameOver) return State.FAILED;
       setMrXPosition({ ...playerPosition, x: playerPosition.x - 100 });
       return State.SUCCEEDED;
     },
 
     AttackPlayer: () => {
-      if (gameOver) {
-        return State.FAILED;
-      }
-      setPlayerHealth((health) => Math.max(0, health - 10));
+      if (gameOver) return State.FAILED;
+      setPlayerHealth((health) => Math.max(0, health - 20));
       return State.SUCCEEDED;
     },
 
     RoamAround: () => {
-      if (gameOver) {
-        return State.FAILED; // Stop roaming if the game is over
-      }
-      const randomRoom =
-        roomsArray[Math.floor(Math.random() * roomsArray.length)];
+      if (gameOver) return State.FAILED;
+      const randomRoom = roomsArray[Math.floor(Math.random() * roomsArray.length)];
       setMrXPosition(randomRoom);
-      console.log("Mr. X roamed to:", randomRoom.name);
       return State.SUCCEEDED;
     },
   };
 
-  // Step 4: Create behavior tree
   const behaviourTree = new BehaviourTree(definition, agent);
 
-  // Step 5: Step through the tree periodically
   useEffect(() => {
-    if (gameOver) {
-      console.log("Game over, stopping behavior tree.");
-      return; // Stop the behavior tree if the game is over
-    }
-
+    if (gameOver) return;
     const interval = setInterval(() => {
       behaviourTree.step();
-    }, 1000); // Update every second
-
+    }, 1000);
     return () => clearInterval(interval);
   }, [gameOver]);
 
-  // Detect when the game should end
   useEffect(() => {
-    if (playerHealth === 0) {
+    if (playerHealth <= 0) {
       setGameOver(true);
-      console.log("Game over. Player health reached 0.");
     }
   }, [playerHealth]);
+
+  // Handle Player Movement
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (gameOver) return;
+
+      const step = 20;
+      setPlayerPosition((prev) => {
+        let newX = prev.x;
+        let newY = prev.y;
+
+        if (event.key === "ArrowUp") newY -= step;
+        if (event.key === "ArrowDown") newY += step;
+        if (event.key === "ArrowLeft") newX -= step;
+        if (event.key === "ArrowRight") newX += step;
+
+        return { ...prev, x: newX, y: newY };
+      });
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [gameOver]);
 
   return (
     <Stage width={700} height={500}>
       <Layer>
-        {/* Render Police Station Map */}
         <PoliceStationMap />
 
-        {/* Player Character */}
+        {/* Player */}
         <Circle
           x={playerPosition.x}
           y={playerPosition.y}
@@ -99,36 +103,25 @@ const MrX = () => {
           fill="blue"
         />
 
-        {/* Mr. X Character */}
+        {/* Mr. X */}
         <Circle
           x={mrXPosition.x}
           y={mrXPosition.y}
           radius={20}
-          fill={playerPosition.name === mrXPosition.name ? "yellow" : "red"} // Mr. X turns yellow when he sees player
+          fill={playerPosition.name === mrXPosition.name ? "yellow" : "red"}
         />
 
         {/* Game Over Message */}
         {gameOver && (
-          <Text
-            x={200}
-            y={200}
-            text="Game Over"
-            fontSize={50}
-            fill="red"
-            fontStyle="bold"
-          />
+          <Text x={200} y={200} text="Game Over" fontSize={50} fill="red" />
         )}
 
-        {/* Player Health Display */}
+        {/* Player Health Bar */}
         {!gameOver && (
-          <Text
-            x={20} 
-            y={20}
-            text={`Health: ${playerHealth}`}
-            fontSize={20}
-            fill="green"
-            fontStyle="bold"
-          />
+          <>
+            <Text x={20} y={20} text="Health" fontSize={18} fill="white" />
+            <Rect x={80} y={20} width={playerHealth} height={10} fill={playerHealth > 50 ? "green" : playerHealth > 20 ? "yellow" : "red"} />
+          </>
         )}
       </Layer>
     </Stage>
