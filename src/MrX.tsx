@@ -118,6 +118,18 @@ const MrX = () => {
             fontStyle="bold"
           />
         )}
+
+        {/* Player Health Display */}
+        {!gameOver && (
+          <Text
+            x={20} 
+            y={20}
+            text={`Health: ${playerHealth}`}
+            fontSize={20}
+            fill="green"
+            fontStyle="bold"
+          />
+        )}
       </Layer>
     </Stage>
   );
