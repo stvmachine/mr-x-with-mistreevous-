@@ -6,7 +6,7 @@ type Rooms = {
   mainHall: Room;
   eastHall: Room;
   westHall: Room;
-  interrogationRoom: Room;
+  weaponsRoom: Room;
   recordsRoom: Room;
   officeRoom: Room;
 };
@@ -15,7 +15,7 @@ const rooms: Rooms = {
   mainHall: { x: 300, y: 200, name: "Main Hall" },
   eastHall: { x: 500, y: 200, name: "East Hall" },
   westHall: { x: 100, y: 200, name: "West Hall" },
-  interrogationRoom: { x: 150, y: 400, name: "Interrogation Room" },
+  weaponsRoom: { x: 150, y: 400, name: "Weapons Room" },
   recordsRoom: { x: 450, y: 400, name: "Records Room" },
   officeRoom: { x: 500, y: 50, name: "Office Room" },
 };
@@ -26,11 +26,11 @@ const PoliceStationMap = () => {
   return (
     <>
       {/* Rooms */}
-      {Object.entries(rooms).map(([name, pos], i) => (
+      {Object.entries(rooms).map(([_, room], i) => (
         <Rect
           key={i}
-          x={pos.x}
-          y={pos.y}
+          x={room.x}
+          y={room.y}
           width={100}
           height={100}
           fill="gray"
@@ -40,11 +40,11 @@ const PoliceStationMap = () => {
       ))}
 
       {/* Room Names */}
-      {Object.entries(rooms).map(([name, pos], i) => (
+      {Object.entries(rooms).map(([_, { x, y, name }], i) => (
         <Text
           key={i}
-          x={pos.x + 20}
-          y={pos.y + 40}
+          x={x + 10}
+          y={y + 40}
           text={name}
           fill="white"
           fontSize={12}
