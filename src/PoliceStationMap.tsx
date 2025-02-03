@@ -2,24 +2,16 @@ import { Rect, Text, Line } from "react-konva";
 
 type Room = { x: number; y: number; name: string };
 
-type Rooms = {
-  mainHall: Room;
-  eastHall: Room;
-  westHall: Room;
-  weaponsRoom: Room;
-  recordsRoom: Room;
-  officeRoom: Room;
-};
-
-const rooms: Rooms = {
+const rooms = {
   mainHall: { x: 300, y: 200, name: "Main Hall" },
   eastHall: { x: 500, y: 200, name: "East Hall" },
   westHall: { x: 100, y: 200, name: "West Hall" },
   weaponsRoom: { x: 150, y: 400, name: "Weapons Room" },
   recordsRoom: { x: 450, y: 400, name: "Records Room" },
   officeRoom: { x: 500, y: 50, name: "Office Room" },
-};
+} as const;
 
+type RoomKeys = keyof typeof rooms;
 const roomsArray: Room[] = Object.values(rooms);
 
 const PoliceStationMap = () => {
@@ -60,4 +52,4 @@ const PoliceStationMap = () => {
   );
 };
 
-export { PoliceStationMap, rooms, roomsArray };
+export { PoliceStationMap, rooms, roomsArray, type RoomKeys, type Room };

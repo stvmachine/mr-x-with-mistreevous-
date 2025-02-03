@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
-import { Stage, Circle, Layer } from "react-konva";
+import { Stage, Circle, Layer, Text } from "react-konva";
 import { State, BehaviourTree } from "mistreevous";
-import { PoliceStationMap, rooms, roomsArray } from "./PoliceStationMap";
+import { PoliceStationMap, Room, rooms, roomsArray } from "./PoliceStationMap";
 
 const MrX = () => {
   // Step 1: Set up state for Mr. X, player, and agent
-  const [mrXPosition, setMrXPosition] = useState(rooms.mainHall);
+  const [mrXPosition, setMrXPosition] = useState<Room>(rooms.mainHall);
   const [playerPosition, setPlayerPosition] = useState({
     ...rooms.officeRoom,
     x: rooms.officeRoom.x + 100,
     y: rooms.officeRoom.y,
   });
-  const [playerHealth, setPlayerHealth] = useState(100);
-  const [isEnemyVisible, setIsEnemyVisible] = useState(false);
+  const [playerHealth, setPlayerHealth] = useState(30);
+  const [gameOver, setGameOver] = useState(false);
 
   // Step 2: Define behavior tree
   const definition = `root {
@@ -20,12 +20,9 @@ const MrX = () => {
         sequence {
             condition [IsSoundDetected]
             action [MoveToSound]
-        }
-        sequence {
-            condition [IsEnemyVisible]
-            action [MoveToPlayer]
-            wait [2000, 4000]
             action [AttackPlayer]
+			wait [2000]
+	        action [RoamAround]
         }
         action [RoamAround]
     }
@@ -33,31 +30,32 @@ const MrX = () => {
 
   // Step 3: Create an agent
   const agent = {
-    IsSoundDetected: () => Math.random() > 0.5,
-
-    IsEnemyVisible: () => mrXPosition.name === playerPosition.name,
+    IsSoundDetected: () => Math.random() > 0.35,
 
     MoveToSound: () => {
-      const targetRoom =
-        roomsArray[Math.floor(Math.random() * roomsArray.length)];
-      setMrXPosition(targetRoom);
-      return State.SUCCEEDED;
-    },
-
-    MoveToPlayer: () => {
-      setMrXPosition(playerPosition);
+      if (gameOver) {
+        return State.FAILED; // Stop movement if game is over
+      }
+      setMrXPosition({ ...playerPosition, x: playerPosition.x - 100 });
       return State.SUCCEEDED;
     },
 
     AttackPlayer: () => {
+      if (gameOver) {
+        return State.FAILED;
+      }
       setPlayerHealth((health) => Math.max(0, health - 10));
       return State.SUCCEEDED;
     },
 
     RoamAround: () => {
+      if (gameOver) {
+        return State.FAILED; // Stop roaming if the game is over
+      }
       const randomRoom =
         roomsArray[Math.floor(Math.random() * roomsArray.length)];
       setMrXPosition(randomRoom);
+      console.log("Mr. X roamed to:", randomRoom.name);
       return State.SUCCEEDED;
     },
   };
@@ -67,22 +65,33 @@ const MrX = () => {
 
   // Step 5: Step through the tree periodically
   useEffect(() => {
+    if (gameOver) {
+      console.log("Game over, stopping behavior tree.");
+      return; // Stop the behavior tree if the game is over
+    }
+
     const interval = setInterval(() => {
       behaviourTree.step();
     }, 1000); // Update every second
 
     return () => clearInterval(interval);
-  }, []);
-  
+  }, [gameOver]);
+
+  // Detect when the game should end
   useEffect(() => {
-    setIsEnemyVisible(mrXPosition.name === playerPosition.name);
-  }, [mrXPosition, playerPosition]);
+    if (playerHealth === 0) {
+      setGameOver(true);
+      console.log("Game over. Player health reached 0.");
+    }
+  }, [playerHealth]);
 
   return (
     <Stage width={700} height={500}>
       <Layer>
+        {/* Render Police Station Map */}
         <PoliceStationMap />
 
+        {/* Player Character */}
         <Circle
           x={playerPosition.x}
           y={playerPosition.y}
@@ -95,8 +104,20 @@ const MrX = () => {
           x={mrXPosition.x}
           y={mrXPosition.y}
           radius={20}
-          fill={isEnemyVisible ? "yellow" : "red"} 
+          fill={playerPosition.name === mrXPosition.name ? "yellow" : "red"} // Mr. X turns yellow when he sees player
         />
+
+        {/* Game Over Message */}
+        {gameOver && (
+          <Text
+            x={200}
+            y={200}
+            text="Game Over"
+            fontSize={50}
+            fill="red"
+            fontStyle="bold"
+          />
+        )}
       </Layer>
     </Stage>
   );
