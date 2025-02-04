@@ -1,50 +1,32 @@
-# React + TypeScript + Vite
+# 🚀 My Awesome Side Project  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Inspiration has many names. In my case, it's called **Mr. X**—a mysterious entity that whispers ideas into my brain at 2 AM and promptly disappears before I can ask for details. **Mr. X is scary...**  
 
-Currently, two official plugins are available:
+Welcome to my side project! This started as a simple idea, then spiraled into something far more ambitious, fueled by late-night caffeine and questionable life choices.  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🎯 What Is This?  
+It's a **beehaviour tree entity** (Mr X) that relentlessly pursues you across the map to eliminate you. If you've ever thought, "*Why doesn't this exist in Typescript?*"—well, now it does!  
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## 🛠 Installation  
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```sh
+npm install  
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Features
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+This project utilizes the following libraries:
+	•	React with Vite starter 
+	•	Konva – A 2D canvas library for rendering interactive graphics efficiently.
+	•	Mistreevous – A behavior tree library used for modeling complex decision-making processes.
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+### Behavior Trees with Mistreevous
+
+Mistreevous provides a structured way to define AI behaviors using behavior trees. This allows for modular, reusable, and predictable decision-making logic, making it ideal for handling AI-driven interactions. Behavior trees are particularly useful in:
+	•	Defining sequential and parallel tasks
+	•	Handling conditional logic dynamically
+	•	Creating adaptable AI behaviors that can react to different inputs and states
+
+Mistreevous introduces a balance between determinism and randomized behaviors, making it a powerful tool for designing sophisticated AI logic.
